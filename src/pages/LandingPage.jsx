@@ -3,7 +3,7 @@ import React from 'react';
 
 import { FaChalkboardTeacher, FaVideo, FaUsers, FaArrowRight } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import Course from '../components/course';
+import Course from '../components/Course';
 import { Link } from 'react-router';
 
 // Animation variants
