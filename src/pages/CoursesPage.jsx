@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { FiSearch, FiFilter, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import Navbar from '../components/NavBar';
 import Footer from '../components/Footer';
+import { getAllCourses } from '../services/courses.service';
+import { changeTitle } from '../util/util';
 
 const CoursesPage = () => {
   // Sample course data
+  changeTitle("LS - courses")
   const allCourses = [
     { id: 1, title: 'Introduction to React', category: 'Web Development', level: 'Beginner', duration: '10 hours', rating: 4.8, students: 1250, price: 49.99, image: 'https://via.placeholder.com/300x200?text=React' },
     { id: 2, title: 'Advanced JavaScript', category: 'Web Development', level: 'Advanced', duration: '15 hours', rating: 4.9, students: 980, price: 59.99, image: 'https://via.placeholder.com/300x200?text=JavaScript' },
@@ -17,6 +20,7 @@ const CoursesPage = () => {
   ];
 
   // State for filters and pagination
+  const [courses,setCourses]=useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedLevels, setSelectedLevels] = useState([]);
@@ -28,6 +32,16 @@ const CoursesPage = () => {
   // Available filters
   const categories = [...new Set(allCourses.map(course => course.category))];
   const levels = [...new Set(allCourses.map(course => course.level))];
+
+  const fetchCourses=async()=>{
+      const response=await getAllCourses();
+      const data=await response.data;
+      setCourses(data);
+  }
+
+  useEffect(() => {   
+    fetchCourses();
+  },[])
 
   // Filter courses based on selections
   const filteredCourses = allCourses.filter(course => {
@@ -220,7 +234,7 @@ const CoursesPage = () => {
             {/* Courses Grid */}
             {currentCourses.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {currentCourses.map((course) => (
+                {courses.map((course) => (
                   <div key={course.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <div className="h-40 bg-gray-200 overflow-hidden">
                       <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
@@ -247,9 +261,9 @@ const CoursesPage = () => {
                             </svg>
                           ))}
                         </div>
-                        <span className="text-sm text-gray-600">
+                        {/* <span className="text-sm text-gray-600">
                           {course.rating} ({course.students.toLocaleString()})
-                        </span>
+                        </span> */}
                       </div>
                       <div className="flex flex-wrap gap-2 mb-4">
                         <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">

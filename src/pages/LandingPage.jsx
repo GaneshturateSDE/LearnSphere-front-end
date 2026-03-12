@@ -1,10 +1,11 @@
 /* eslint-disable no-unused-vars */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { FaChalkboardTeacher, FaVideo, FaUsers, FaArrowRight } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import Course from '../components/Course';
 import { Link } from 'react-router';
+import { getAllCourses } from '../services/courses.service';
 
 // Animation variants
 const container = {
@@ -22,24 +23,39 @@ const item = {
   show: { opacity: 1, y: 0 }
 };
 
+
+
 const LandingPage = () => {
-  const courses = [
-    {
-      title: "React for Beginners",
-      desc: "Learn the basics of React and build your first application.",
-      img: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-    },
-    {
-      title: "Java with Spring Boot",
-      desc: "Master backend development with Spring framework.",
-      img: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-    },
-    {
-      title: "DSA Mastery",
-      desc: "Crack coding interviews with comprehensive DSA training.",
-      img: "https://images.unsplash.com/photo-1610563166150-b34df4f3bcd6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-    }
-  ];
+  // const courses = [
+  //   {
+  //     title: "React for Beginners",
+  //     desc: "Learn the basics of React and build your first application.",
+  //     img: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+  //   },
+  //   {
+  //     title: "Java with Spring Boot",
+  //     desc: "Master backend development with Spring framework.",
+  //     img: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+  //   },
+  //   {
+  //     title: "DSA Mastery",
+  //     desc: "Crack coding interviews with comprehensive DSA training.",
+  //     img: "https://images.unsplash.com/photo-1610563166150-b34df4f3bcd6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+  //   }
+  // ];
+   document.title = "LearnSphere - Empower Your Learning Journey";
+  const [courses,setCourses]=useState([]);
+  
+const fetchCourses = async () => {
+   document.title = "LearnSphere - Empower Your Learning Journey";
+      const fetchedCourses = await getAllCourses();
+      const data=await fetchedCourses.data;
+      setCourses(data);
+    };
+
+  useEffect(() => {
+       fetchCourses();
+  }, []);
 
   const testimonials = [
     {

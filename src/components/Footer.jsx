@@ -7,10 +7,10 @@ const Footer = () => {
   const isAdmin = true; 
 
   return (
-    <footer className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-12 px-4 mt-16">
+    <footer className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="flex items-center justify-between gap-15 mb-8">
           {/* Brand Info */}
           <div className="space-y-4">
             <h3 className="text-2xl font-bold flex items-center">
@@ -52,7 +52,7 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4 border-b border-blue-500 pb-2">Resources</h4>
             <ul className="space-y-3">
               <li><a href="/help-center" className="hover:text-blue-300 transition-colors">Help Center</a></li>
-              <li><a href="/privacy" className="hover:text-blue-300 transition-colors">Privacy Policy</a></li>
+              <li><a href="/privacy-policy" className="hover:text-blue-300 transition-colors">Privacy Policy</a></li>
               <li><a href="/terms" className="hover:text-blue-300 transition-colors">Terms of Service</a></li>
               <li><a href="/contact" className="hover:text-blue-300 transition-colors">Contact Us</a></li>
             </ul>

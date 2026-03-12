@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+
+import userService from '../services/user.service';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const mobileMenuRef = useRef(null);
 
-    // Add scroll effect for navbar
+    const {user} = useAuth();
+
+    
     useEffect(() => {
         const handleScroll = () => {
             if (window.scrollY > 10) {
@@ -35,7 +40,7 @@ const Navbar = () => {
             if (isOpen) {
                 setIsOpen(false);
             }
-        };
+        };   
 
         document.addEventListener('mousedown', handleClickOutside);
         window.addEventListener('scroll', handleScroll);
@@ -45,6 +50,19 @@ const Navbar = () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, [isOpen]);
+const getProfile=async()=>{
+    try {
+        
+        const data=await userService.getProfile();
+        // storeUser(data.user)
+    } catch (error) {
+        console.error("Error fetching profile:", error);
+    }
+}
+    useEffect(() => {
+        getProfile()
+    }, []);
+    
 
     return (
         <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-lg py-3' : 'bg-white shadow-md py-4'}`}>
@@ -69,14 +87,14 @@ const Navbar = () => {
                         </ul>
 
                         {/* Buttons */}
-                        <div className="ml-8 flex space-x-4">
+                       {!user && <div className="ml-8 flex space-x-4">
                             <Link 
                                 to="/login" 
                                 className="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg px-4 py-2 text-center transition-all duration-300 font-medium"
                             >
                                 Login/Signup
                             </Link>
-                        </div>
+                        </div>}
                     </div>
 
                     {/* Hamburger Button */}
