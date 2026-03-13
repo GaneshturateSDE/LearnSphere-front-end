@@ -1,4 +1,7 @@
+import { useEffect } from "react"
 
 export const changeTitle = (title) => {
-    document.title = title;
+    useEffect(()=>{
+       document.title = title;
+    },[title])
     }
