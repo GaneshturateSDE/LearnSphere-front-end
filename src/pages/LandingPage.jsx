@@ -108,15 +108,15 @@ const fetchCourses = async () => {
                 Explore Courses <FaArrowRight />
               </motion.button>
             </Link>
-            <Link to={"features"}>
+            <a href='#features'>
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:bg-opacity-10 transition-all duration-300"
+                className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-black hover:bg-opacity-10 transition-all duration-300"
               >
                 Learn More
               </motion.button>
-            </Link>
+            </a>
           </div>
         </motion.div>
       </section>
@@ -331,9 +331,9 @@ const fetchCourses = async () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <button className="px-8 py-4 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition-all duration-300 font-semibold shadow-lg flex items-center gap-2 mx-auto">
+            <Link to={"/courses"} className="px-8 py-4 w-1/2 md:w-1/4 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition-all duration-300 font-semibold shadow-lg flex items-center gap-2 mx-auto">
               Get Started Today <FaArrowRight />
-            </button>
+            </Link>
           </motion.div>
         </div>
       </section>
