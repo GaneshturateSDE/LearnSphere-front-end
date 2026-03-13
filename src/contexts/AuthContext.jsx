@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
     const navigation = useNavigate();
   const [user, setUser] = useState(null);   // store user object
   const [token, setToken] = useState(localStorage.getItem("token"));
-
+ const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const storeUser=(user)=>{
     setUser(user)
@@ -20,6 +20,10 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", token);
   }
 
+  const toggleProfile = () => {
+    setIsProfileOpen(!isProfileOpen);
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -28,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token ,storeUser,storeToken, logout }}>
+    <AuthContext.Provider value={{ user, token ,storeUser,storeToken, logout,toggleProfile, isProfileOpen}}>
       {children}
     </AuthContext.Provider>
   );
