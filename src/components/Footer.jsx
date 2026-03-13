@@ -7,10 +7,10 @@ const Footer = () => {
   const isAdmin = true; 
 
   return (
-    <footer className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-12 px-4">
-      <div className="max-w-7xl mx-auto">
+    <footer className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-12 px-10">
+      <div className="max-w-full mx-auto">
         {/* Main Footer Content */}
-        <div className="flex items-center justify-between gap-15 mb-8">
+        <div className=" sm:flex  justify-between items-center md:items-center md:justify-beween  gap-5 md:gap-15 md:mb-8">
           {/* Brand Info */}
           <div className="space-y-4">
             <h3 className="text-2xl font-bold flex items-center">
@@ -60,7 +60,7 @@ const Footer = () => {
 
           {/* Admin Section - Conditionally rendered */}
           {isAdmin && (
-            <div className="bg-blue-800/30 p-4 rounded-lg">
+            <div className="bg-blue-800/30 md:p-4 rounded-lg">
               <h4 className="text-lg font-semibold mb-4 border-b border-blue-500 pb-2 flex items-center">
                 <FaLock className="mr-2" /> Admin
               </h4>
