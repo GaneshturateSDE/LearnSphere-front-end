@@ -10,12 +10,13 @@ import {
 } from "react-icons/fa";
 
 import {  Link, Outlet } from "react-router-dom";
+import { changeTitle } from "../../util/util";
 
 
 
 const AdminDashboard = () => {
 
- 
+  changeTitle("Admin Dashboard - LearnSphere")
 
   const renderComponent = (event) => {
        const sidebar = document.getElementById("side-bar");
@@ -30,7 +31,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 mt-5">
 
       {/* Sidebar */}
       <div className="w-64 bg-blue-700 text-white p-6">
