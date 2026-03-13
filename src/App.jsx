@@ -22,12 +22,18 @@ import Payments from './pages/admin/Payments'
 import Analytics from './pages/admin/Analytics'
 import Settings from './pages/admin/Settings'
 import DashboardHome from './pages/admin/DashboardHome'
+import Profile from './pages/Profile'
+import { useState } from 'react'
+import InstructorDashboard from './pages/instructor/InstructorDashboard'
+import InstructorHome from './pages/instructor/InstructorHome'
+import InstructorCourseManagement from './pages/instructor/InstructorCourseManagement'
+import InstructorAnalytics from './pages/instructor/InstructorAnalytics'
 
 
 function App() {
  
   const {user} = useAuth();
-
+  const {isProfileOpen} = useAuth()
   return (
     <>
     <ToastContainer
@@ -46,16 +52,20 @@ function App() {
           <Navbar />
         </div>
         <div className='mt-15'>
+          <Profile isOpen={isProfileOpen}  />
           <Routes>
+
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={user?<CoursesPage/>:<AuthPage />} />
             <Route path="/courses" element={<CoursesPage />} />
+          
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/admin/" element={<AdminDashboard />} >
             
                <Route path="" element={<DashboardHome />} />
+               <Route path="dashboard" element={<DashboardHome />} />
                <Route path="users" element={<Users />} />
                <Route path="courses" element={<Courses />} />
                <Route path="categories" element={<Categories />} />
@@ -63,7 +73,14 @@ function App() {
                <Route path="analytics" element={<Analytics />} />
                <Route path="settings" element={<Settings />} />
             </Route>
+
+            <Route path="/instructor/" element={<InstructorDashboard />} >
+                <Route path="dashboard" element={<InstructorHome />} />
+                <Route path="courses" element={<InstructorCourseManagement />} />
+                <Route path="analytics" element={<InstructorAnalytics />} />
+              </Route>  
             <Route path="*" element={<PageNotFound />} />
+        
           </Routes>
         </div>
         <div>
