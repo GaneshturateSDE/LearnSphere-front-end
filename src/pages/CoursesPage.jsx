@@ -57,7 +57,7 @@ const CoursesPage = () => {
   const indexOfLastCourse = currentPage * coursesPerPage;
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
   const currentCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
-  const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
+  const totalPages = Math.ceil(courses.length / coursesPerPage);
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -227,7 +227,7 @@ const CoursesPage = () => {
             {/* Results count */}
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-medium text-gray-900">
-                {filteredCourses.length} {filteredCourses.length === 1 ? 'course' : 'courses'} found
+                {courses.length} {courses.length === 1 ? 'course' : 'courses'} found
               </h2>
             </div>
 
