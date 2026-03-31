@@ -99,7 +99,7 @@ const Navbar = () => {
             </ul>
 
             {/* Buttons */}
-            {user ?(
+            {!user ?(
               <div className="ml-8 flex space-x-4">
                 <Link
                   to="/login"
