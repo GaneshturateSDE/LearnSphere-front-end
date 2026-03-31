@@ -1,6 +1,47 @@
-import React from "react";
+import React, { use, useEffect, useState } from "react";
+
+import CourseModal from "../../components/CourseModal";
+import { createCourse, deleteCourse, getAllCourses } from "../../services/courses.service";
+import { Route, useNavigate } from "react-router-dom";
+import Course from "../../components/Course";
+import { toast } from "react-toastify";
 
 const InstructorCourseManagement = () => {
+   const [isOpen, setIsOpen] = useState(false);
+   const[courses,setCourses]=useState([]);
+
+   const navigation=useNavigate();
+
+    useEffect(()=>{
+        handlefetchCourses();
+    },[])
+   
+    const handlefetchCourses=async()=>{
+        const data=await getAllCourses();
+        setCourses(data.data);
+    }
+
+   const handleCourseSubmit =async (courseData) => {
+      console.log("New course data:", courseData);  
+     const data=await createCourse(courseData);
+     toast.success(data.message);
+     handlefetchCourses()
+   }
+   
+ const handleDelete=async(courseId)=>{
+      
+    if(!confirm("Are you sure you want to delete this course?")) return;
+      const data=await deleteCourse(courseId);
+      // alert(data.message);
+      toast.success(data.message);
+      handlefetchCourses();
+  }
+
+  const openCourseDetails=(courseId)=>{
+        navigation(`/instructor/courses/${courseId}`)
+  }
+   
+
   return (
     <div>
 
@@ -8,40 +49,22 @@ const InstructorCourseManagement = () => {
         Course Management
       </h1>
 
-      <button className="bg-blue-700 text-white px-4 py-2 rounded mb-4">
+      <button className="bg-blue-700 text-white px-4 py-2 rounded mb-4" onClick={()=>setIsOpen(true)} >
         Add New Course
       </button>
 
+         <CourseModal isOpen={isOpen} onClose={() => setIsOpen(false)} onSubmit={handleCourseSubmit} />
+
       <div className="bg-white p-6 shadow rounded">
-
-        <table className="w-full">
-
-          <thead>
-            <tr className="border-b">
-              <th className="text-left py-2">Course</th>
-              <th className="text-left py-2">Students</th>
-              <th className="text-left py-2">Price</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            <tr className="border-b">
-              <td className="py-2">React Course</td>
-              <td>120</td>
-              <td>₹499</td>
-            </tr>
-
-            <tr>
-              <td className="py-2">Spring Boot</td>
-              <td>80</td>
-              <td>₹699</td>
-            </tr>
-
-          </tbody>
-
-        </table>
-
+        {courses.length === 0 ? (
+          <p className="text-gray-600">No courses available. Please add some courses.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+            {courses.map((course) => (
+              <Course key={course.id} value={course} handleDelete={handleDelete} handleDetails={openCourseDetails} />
+            ))}
+          </div>
+        )}
       </div>
 
     </div>
