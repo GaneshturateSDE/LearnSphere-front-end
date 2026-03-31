@@ -28,6 +28,7 @@ import InstructorDashboard from './pages/instructor/InstructorDashboard'
 import InstructorHome from './pages/instructor/InstructorHome'
 import InstructorCourseManagement from './pages/instructor/InstructorCourseManagement'
 import InstructorAnalytics from './pages/instructor/InstructorAnalytics'
+import InstructorCourse from './pages/instructor/instructorCourse'
 
 
 function App() {
@@ -43,7 +44,7 @@ function App() {
      newestOnTop={true}
       closeOnClick
      pauseOnHover
-     draggable
+     
     />
     <ScrollToTop/>
     
@@ -78,6 +79,7 @@ function App() {
                 <Route path="dashboard" element={<InstructorHome />} />
                 <Route path="courses" element={<InstructorCourseManagement />} />
                 <Route path="analytics" element={<InstructorAnalytics />} />
+                <Route path="courses/:id" element={<InstructorCourse />} />
               </Route>  
             <Route path="*" element={<PageNotFound />} />
         
