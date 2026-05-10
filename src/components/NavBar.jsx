@@ -1,16 +1,28 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, use } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 import userService from "../services/user.service";
-import { FaChevronDown } from "react-icons/fa";
+import { FaChevronDown, FaShoppingCart } from "react-icons/fa";
+import { USER_TYPES } from "../constants/user.constant";
+import { useLoader } from "../contexts/LoaderContext";
+import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const mobileMenuRef = useRef(null);
 
-  const { user, isProfileOpen, toggleProfile  } = useAuth();
+  const { user, storeUser, toggleProfile } = useAuth();
+  const {setLoader} = useLoader();
+   const {totalItems}=useSelector(state=>state.cart);
+
+  useEffect(() => {
+ 
+    checkInternet();
+  }, []);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,6 +37,14 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  async function checkInternet(){
+     try {
+    await fetch("https://www.google.com", { mode: "no-cors" });
+    
+  } catch {
+    toast.error("You are offline.");
+  }
+  }
   // Close mobile menu when clicking outside or scrolling
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -53,17 +73,22 @@ const Navbar = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [isOpen]);
-  const getProfile = async () => {
-    try {
-      const data = await userService.getProfile();
-      // storeUser(data.user)
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    }
-  };
-  useEffect(() => {
-    getProfile();
-  }, []);
+
+  // const getProfile = async () => {
+  //   try {
+  //     setLoader(true);
+  //     const data = await userService.getProfile();
+  //     storeUser(data.user)
+  //   } catch (error) {
+  //     console.error("Error fetching profile:", error);
+  //   }finally{
+  //     setLoader(false);
+  //   }
+  // };
+  // useEffect(() => {
+
+  //   getProfile();
+  // }, []);
 
   return (
     <nav
@@ -96,6 +121,23 @@ const Navbar = () => {
                   Courses
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/cart"
+                  className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium flex items-center gap-2 "
+                >
+                 <FaShoppingCart/> Cart {totalItems>0 && <span className="text-xs bg-red-500 text-white rounded-full px-1">{totalItems}</span>}
+                </Link>
+              </li>
+               {user?.role===USER_TYPES.INSTRUCTOR && (
+                <li>
+                  <Link
+                    to="/instructor/"
+                    className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
+                  >
+                  Dashboard
+                </Link>
+              </li>)}
             </ul>
 
             {/* Buttons */}
@@ -109,21 +151,21 @@ const Navbar = () => {
                 </Link>
               </div>
             ):(
-                 <div
+                 <Link to={"/profile"}
               className="flex items-center gap-3 border border-blue-300 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-lg" onClick={toggleProfile}
             >
               <img
-                src="https://i.pravatar.cc/100"
+                src={user?.profileUrl || "https://i.pravatar.cc/150"}
                 alt="profile"
                 className="w-10 h-10 rounded-full object-cover border-2 border-blue-700"
               />
 
               <span className="font-medium text-gray-700 hidden sm:block">
-                Ganesh
+                {user?.name.split(" ")[0] || "Profile"}
               </span>
 
               <FaChevronDown className="text-gray-500 text-sm" />
-            </div>
+            </Link>
             )}
           </div>
 
@@ -181,14 +223,16 @@ const Navbar = () => {
               Courses
             </Link>
 
-            <Link
-              to="/login"
-              className="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg px-4 py-2 text-center transition-all duration-300 font-medium"
-              onClick={() => setIsOpen(false)}
-            >
-              Login/Signup
-            </Link>
-
+              { !user ?(
+                <Link
+                  to="/login"
+                  className="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg px-4 py-2 text-center transition-all duration-300 font-medium"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Login/Signup
+                </Link>
+              ):(  
+             
             <div
               className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-lg"
             >
@@ -204,6 +248,7 @@ const Navbar = () => {
 
               <FaChevronDown className="text-gray-500 text-sm" />
             </div>
+              )}
           </div>
         </div>
       </div>
