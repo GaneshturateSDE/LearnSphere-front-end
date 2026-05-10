@@ -6,6 +6,10 @@ import { motion } from 'framer-motion';
 import Course from '../components/Course';
 import { Link } from 'react-router';
 import { getAllCourses } from '../services/courses.service';
+import { useLoader } from '../contexts/LoaderContext';
+
+
+
 
 // Animation variants
 const container = {
@@ -26,17 +30,18 @@ const item = {
 
 
 const LandingPage = () => {
+ 
   // const courses = [
   //   {
-  //     title: "React for Beginners",
-  //     desc: "Learn the basics of React and build your first application.",
-  //     img: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-  //   },
-  //   {
-  //     title: "Java with Spring Boot",
-  //     desc: "Master backend development with Spring framework.",
-  //     img: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-  //   },
+  //       title: "React for Beginners",
+  //       desc: "Learn the basics of React and build your first application.",
+  //       img: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+  //     },
+  //     {
+  //         title: "Java with Spring Boot",
+  //         desc: "Master backend development with Spring framework.",
+  //         img: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+  //       },
   //   {
   //     title: "DSA Mastery",
   //     desc: "Crack coding interviews with comprehensive DSA training.",
@@ -45,18 +50,26 @@ const LandingPage = () => {
   // ];
    document.title = "LearnSphere - Empower Your Learning Journey";
   const [courses,setCourses]=useState([]);
+  const {loading,setLoader} = useLoader();
   
-const fetchCourses = async () => {
-   document.title = "LearnSphere - Empower Your Learning Journey";
-      const fetchedCourses = await getAllCourses();
+  const fetchCourses = async () => {
+    document.title = "LearnSphere - Empower Your Learning Journey";
+    const params={
+      limit:3,
+      page:1
+    }
+    const fetchedCourses = await getAllCourses(params);
+      //  setLoader(true);
       const data=await fetchedCourses.data;
       setCourses(data);
+      setLoader(false);
     };
 
   useEffect(() => {
+    setLoader(true);
        fetchCourses();
   }, []);
-
+  
   const testimonials = [
     {
       name: "Priya Sharma",
@@ -216,7 +229,7 @@ const fetchCourses = async () => {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10"
           >
             {courses.map((course, index) => (
               <motion.div 
@@ -225,11 +238,13 @@ const fetchCourses = async () => {
                 whileHover={{ y: -5 }}
                 transition={{ duration: 0.3 }}
               >
-                <Course
-                  title={course.title}
-                  desc={course.desc}
-                  img={course.img}
-                />
+                  <div className='flex flex-col justify-between w-100 h-100  border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer'>
+                    <img className='h-70' src={course.thumbnailUrl} alt="" />
+                    <div className='flex justify-between gap-10'>
+                      <p className='font-bold'>{course?.title}</p> 
+                      <p>{Math.floor(course?.durationInMin/60)==0 ? '' : Math.floor(course?.durationInMin/60) + ' hrs '} {course?.durationInMin%60} mins</p>
+                    </div>
+                  </div>
               </motion.div>
             ))}
           </motion.div>
@@ -241,9 +256,9 @@ const fetchCourses = async () => {
             transition={{ delay: 0.5, duration: 0.5 }}
             className="text-center mt-12"
           >
-            <button className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium flex items-center gap-2 mx-auto">
+            <Link to={"/courses"} className="px-8 py-3 w-1/5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium flex items-center gap-2 mx-auto">
               View All Courses <FaArrowRight />
-            </button>
+            </Link>
           </motion.div>
         </div>
       </section>
