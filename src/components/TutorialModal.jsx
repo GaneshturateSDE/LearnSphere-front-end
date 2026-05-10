@@ -20,9 +20,10 @@ const TutorialModal = ({ isOpen, onClose, handleTutorials }) => {
     
     const onSubmit = (data) => {
         console.log("Tutorial:", data, file);
-        handleTutorials(data)
-        reset()
-        onClose();
+        data.resourceFile=file;
+        handleTutorials(data,file)
+        // reset()
+        // onClose();
     };
     if (!isOpen) return null;
 
@@ -43,7 +44,7 @@ const TutorialModal = ({ isOpen, onClose, handleTutorials }) => {
           Add Tutorial
         </h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" encType="multipart/form-data">
 
           <input
             {...register("title")}
