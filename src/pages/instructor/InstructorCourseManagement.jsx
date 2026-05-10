@@ -59,9 +59,9 @@ const InstructorCourseManagement = () => {
         {courses.length === 0 ? (
           <p className="text-gray-600">No courses available. Please add some courses.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 ">
             {courses.map((course) => (
-              <Course key={course.id} value={course} handleDelete={handleDelete} handleDetails={openCourseDetails} />
+              <Course key={course.id} course={course} handleDelete={handleDelete} handleDetails={openCourseDetails} />
             ))}
           </div>
         )}
