@@ -1,5 +1,7 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import userService from "../services/user.service";
+import { get } from "react-hook-form";
 
 // Create context
 const AuthContext = createContext(null);
@@ -7,14 +9,31 @@ const AuthContext = createContext(null);
 // Provider
 export const AuthProvider = ({ children }) => {
     const navigation = useNavigate();
-  const [user, setUser] = useState(null);   // store user object
+  const [user, setUser] = useState();   // store user object
   const [token, setToken] = useState(localStorage.getItem("token"));
  const [isProfileOpen, setIsProfileOpen] = useState(false);
+ const [authLoading, setAuthLoading] = useState(true);
+
 
   const storeUser=(user)=>{
+    
     setUser(user)
   }
+  useEffect(() => {
+   
+      getProfile();
+    },[])
   
+    const getProfile=async()=>{
+      try {
+        const data=await userService.getProfile();
+        setUser(data?.user)
+        setAuthLoading(false);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        setAuthLoading(false);
+      }
+    }
   const storeToken=(token)=>{
     setToken(token)
     localStorage.setItem("token", token);
@@ -32,8 +51,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token ,storeUser,storeToken, logout,toggleProfile, isProfileOpen}}>
-      {children}
+    <AuthContext.Provider value={{ user, token ,storeUser,storeToken, logout,authLoading}}>
+      {children}  
     </AuthContext.Provider>
   );
 };

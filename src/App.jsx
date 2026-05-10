@@ -1,5 +1,5 @@
 
-import { Route, Routes } from 'react-router'
+import { Navigate, Route, Routes } from 'react-router'
 import './App.css'
 import Footer from './components/Footer'
 import Navbar from './components/NavBar'
@@ -29,14 +29,25 @@ import InstructorHome from './pages/instructor/InstructorHome'
 import InstructorCourseManagement from './pages/instructor/InstructorCourseManagement'
 import InstructorAnalytics from './pages/instructor/InstructorAnalytics'
 import InstructorCourse from './pages/instructor/instructorCourse'
+import CourseDetails from './pages/CourseDetails'
+import FullScreenLoader from './components/FullScreenLoader'
+import { useLoader } from './contexts/LoaderContext'
+import CourseCartPage from './pages/CourseCartPage'
 
 
 function App() {
  
-  const {user} = useAuth();
-  const {isProfileOpen} = useAuth()
+  const {loading} = useLoader();
+ 
+const { user,authLoading } = useAuth();
+
+if(authLoading ) return <FullScreenLoader text="Loading..."/>
+
+
+
   return (
     <>
+    {loading  && <FullScreenLoader />}
     <ToastContainer
      position='top-right'
      autoClose={5000}
@@ -48,18 +59,21 @@ function App() {
     />
     <ScrollToTop/>
     
+      
       <div className="flex flex-col ">
         <div>
           <Navbar />
         </div>
         <div className='mt-15'>
-          <Profile isOpen={isProfileOpen}  />
+          
           <Routes>
 
             <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={user?<CoursesPage/>:<AuthPage />} />
+            <Route path="/login" element={user ? <Navigate to="/courses" /> : <AuthPage />} />
             <Route path="/courses" element={<CoursesPage />} />
-          
+            <Route path='/cart' element={<CourseCartPage />} />
+            <Route path="/profile" element={user?<Profile  />:<Navigate to="/login" />} />
+            <Route path="/courses/:id" element={<CourseDetails />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
@@ -76,6 +90,8 @@ function App() {
             </Route>
 
             <Route path="/instructor/" element={<InstructorDashboard />} >
+                <Route path="" element={<Navigate to="/instructor/dashboard" />} />
+               
                 <Route path="dashboard" element={<InstructorHome />} />
                 <Route path="courses" element={<InstructorCourseManagement />} />
                 <Route path="analytics" element={<InstructorAnalytics />} />

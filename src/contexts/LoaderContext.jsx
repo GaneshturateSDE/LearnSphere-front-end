@@ -1,19 +1,24 @@
 import { createContext, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 // Create context
 const LoaderContext = createContext(null);
 
 // Provider
 export const LoaderProvider = ({ children }) => {
-    const navigation = useNavigate();
 
  const [loading, setLoading] = useState(false);
+ 
+
+ const setLoader = (value) => {
+    console.log("Setting loader to:", value);
+ 
+    setLoading(()=> value);
+  }
 
  
 
+
   return (
-    <LoaderContext.Provider value={{ loading ,setLoading}}>
+    <LoaderContext.Provider value={{ loading ,setLoader}}>
       {children}
     </LoaderContext.Provider>
   );
