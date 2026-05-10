@@ -4,20 +4,23 @@ import Navbar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { getAllCourses } from '../services/courses.service';
 import { changeTitle } from '../util/util';
+import { useNavigate } from 'react-router-dom';
+import { useLoader } from '../contexts/LoaderContext';
+import { set } from 'react-hook-form';
+import { useAuth } from '../contexts/AuthContext';
+import { CATEGORIES, LEVELS } from '../constants/user.constant';
+import Pagination from '../components/Pagination';
+import { FaMinus, FaPlus, FaShoppingCart } from 'react-icons/fa';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart } from '../store/cart/cartSlice';
+import { toast } from 'react-toastify';
+
+
 
 const CoursesPage = () => {
   // Sample course data
   changeTitle("LS - courses")
-  const allCourses = [
-    { id: 1, title: 'Introduction to React', category: 'Web Development', level: 'Beginner', duration: '10 hours', rating: 4.8, students: 1250, price: 49.99, image: 'https://via.placeholder.com/300x200?text=React' },
-    { id: 2, title: 'Advanced JavaScript', category: 'Web Development', level: 'Advanced', duration: '15 hours', rating: 4.9, students: 980, price: 59.99, image: 'https://via.placeholder.com/300x200?text=JavaScript' },
-    { id: 3, title: 'Python for Data Science', category: 'Data Science', level: 'Intermediate', duration: '20 hours', rating: 4.7, students: 2100, price: 69.99, image: 'https://via.placeholder.com/300x200?text=Python' },
-    { id: 4, title: 'UI/UX Design Fundamentals', category: 'Design', level: 'Beginner', duration: '8 hours', rating: 4.6, students: 750, price: 39.99, image: 'https://via.placeholder.com/300x200?text=Design' },
-    { id: 5, title: 'Mobile App Development with Flutter', category: 'Mobile', level: 'Intermediate', duration: '12 hours', rating: 4.5, students: 890, price: 54.99, image: 'https://via.placeholder.com/300x200?text=Flutter' },
-    { id: 6, title: 'Machine Learning Basics', category: 'Data Science', level: 'Intermediate', duration: '18 hours', rating: 4.8, students: 1500, price: 79.99, image: 'https://via.placeholder.com/300x200?text=ML' },
-    { id: 7, title: 'DevOps for Beginners', category: 'DevOps', level: 'Beginner', duration: '10 hours', rating: 4.4, students: 650, price: 49.99, image: 'https://via.placeholder.com/300x200?text=DevOps' },
-    { id: 8, title: 'Advanced CSS and Sass', category: 'Web Development', level: 'Advanced', duration: '9 hours', rating: 4.7, students: 1100, price: 44.99, image: 'https://via.placeholder.com/300x200?text=CSS' },
-  ];
+
 
   // State for filters and pagination
   const [courses,setCourses]=useState([]);
@@ -26,44 +29,81 @@ const CoursesPage = () => {
   const [selectedLevels, setSelectedLevels] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [coursesPerPage] = useState(4);
+  const [totalPages, setTotalPages] = useState(1);
+  const [coursesPerPage,setCoursesPerPage] = useState(4);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-
+  const {setLoader}=useLoader();
+  const dispatch=useDispatch()
+  const {items}=useSelector(state=>state.cart);
   // Available filters
-  const categories = [...new Set(allCourses.map(course => course.category))];
-  const levels = [...new Set(allCourses.map(course => course.level))];
+ 
 
-  const fetchCourses=async()=>{
-      const response=await getAllCourses();
-      const data=await response.data;
-      setCourses(data);
+  const {user}=useAuth();
+const fetchCourses = async () => {
+
+  setLoader(true);
+
+  try {
+    const params = {
+      search: searchTerm || undefined,
+      categories: selectedCategories.length ? selectedCategories.join(",") : undefined,
+      levels: selectedLevels.length ? selectedLevels.join(",") : undefined,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      page: currentPage ,
+      limit: coursesPerPage
+    };
+
+   
+
+    const response = await getAllCourses(params);
+    const data = response.data;
+    console.log("Fetched courses data:", data);
+    setTotalPages(response.totalPages);
+    setCurrentPage(response.currentPage);
+    const enrolledSet = new Set(user?.coursesId?.map(String) || []);
+
+    setCourses(
+      data.map(course => ({
+        ...course,
+        enrolled: enrolledSet.has(String(course.id)),
+        inCart: items.some(i => i.id === course.id)
+      }))
+    );
+
+  } catch (e) {
+    console.error(e);
   }
 
+  setLoader(false);
+};
+
+const addCart=(course)=>{ 
+          dispatch(addToCart(course))
+          if(course.enrolled)
+            toast.success("added in cart");
+           else
+            toast.error("removed from cart");
+}
+
+
   useEffect(() => {   
+  
     fetchCourses();
-  },[])
+  
+  },[searchTerm, selectedCategories, selectedLevels, priceRange, currentPage,coursesPerPage]);
 
-  // Filter courses based on selections
-  const filteredCourses = allCourses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(course.category);
-    const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(course.level);
-    const matchesPrice = course.price >= priceRange[0] && course.price <= priceRange[1];
-    
-    return matchesSearch && matchesCategory && matchesLevel && matchesPrice;
-  });
+  
 
-  // Pagination logic
-  const indexOfLastCourse = currentPage * coursesPerPage;
-  const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
-  const currentCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
-  const totalPages = Math.ceil(courses.length / coursesPerPage);
+  
+  
 
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, selectedCategories, selectedLevels, priceRange]);
 
+  const naviagtion=useNavigate()
   // Toggle category selection
   const toggleCategory = (category) => {
     setSelectedCategories(prev =>
@@ -72,6 +112,10 @@ const CoursesPage = () => {
         : [...prev, category]
     );
   };
+
+  const enrollCourse=(courseId)=>{
+      naviagtion(`/courses/${courseId}`)
+  }
 
   // Toggle level selection
   const toggleLevel = (level) => {
@@ -83,8 +127,8 @@ const CoursesPage = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      {/* Mobile filters button */}
+    <div className="bg-gray-50 min-h-screen w-full">
+      {/* Mobile filters button */}                                   
       <div className="md:hidden bg-white shadow-sm p-4">
         <button
           onClick={() => setMobileFiltersOpen(true)}
@@ -95,8 +139,8 @@ const CoursesPage = () => {
         </button>
       </div>
 
-      <div className="max-w-7xl mx-auto mt-20 px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col md:flex-row gap-8">
+      <div className="w-full mx-auto mt-20 px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col md:flex-row gap-8 w-full">
           {/* Sidebar Filters - Desktop */}
           <div className="hidden md:block w-64 flex-shrink-0">
             <div className="bg-white p-6 rounded-lg shadow-sm sticky top-20">
@@ -122,11 +166,28 @@ const CoursesPage = () => {
                 </div>
               </div>
 
+              <div className="mb-6">
+                      <h3 className="text-sm font-medium text-gray-900 mb-2">Items per page</h3>
+                      <select
+                        value={coursesPerPage}
+                        onChange={(e) => setCoursesPerPage(parseInt(e.target.value))}
+                        className="w-1/2 border px-6 py-2 rounded"
+                      >
+                        
+                        <option value={4}>4</option>
+                  
+                        <option value={8}>8</option>
+                        <option value={20}>20</option>
+                      </select>
+                    
+              </div>
+                
+
               {/* Categories */}
               <div className="mb-6">
                 <h3 className="text-sm font-medium text-gray-900 mb-2">Categories</h3>
                 <div className="space-y-2">
-                  {categories.map((category) => (
+                  {CATEGORIES.map((category) => (
                     <div key={category} className="flex items-center">
                       <input
                         id={`category-${category}`}
@@ -147,7 +208,7 @@ const CoursesPage = () => {
               <div className="mb-6">
                 <h3 className="text-sm font-medium text-gray-900 mb-2">Levels</h3>
                 <div className="space-y-2">
-                  {levels.map((level) => (
+                  {LEVELS.map((level) => (
                     <div key={level} className="flex items-center">
                       <input
                         id={`level-${level}`}
@@ -207,7 +268,7 @@ const CoursesPage = () => {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1">
+          <div className="flex flex-col justify-between w-full">
             {/* Search for mobile */}
             <div className="md:hidden mb-6">
               <div className="relative rounded-md shadow-sm">
@@ -225,19 +286,20 @@ const CoursesPage = () => {
             </div>
 
             {/* Results count */}
-            <div className="flex justify-between items-center mb-6">
+            {/* <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-medium text-gray-900">
                 {courses.length} {courses.length === 1 ? 'course' : 'courses'} found
               </h2>
-            </div>
+            </div> */}
 
             {/* Courses Grid */}
-            {currentCourses.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {courses.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
                 {courses.map((course) => (
-                  <div key={course.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    <div className="h-40 bg-gray-200 overflow-hidden">
-                      <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
+                  <div key={course.id}  className="bg-white rounded-lg cursor-pointer shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                    <div className="max-h-60 bg-gray-200 overflow-hidden">
+                      
+                      <img onClick={()=>enrollCourse(course.id)} src={course.thumbnailUrl} alt={course.title} className="h-full w-full object-cover" />
                     </div>
                     <div className="p-6">
                       <div className="flex justify-between items-start mb-2">
@@ -266,19 +328,27 @@ const CoursesPage = () => {
                         </span> */}
                       </div>
                       <div className="flex flex-wrap gap-2 mb-4">
-                        <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                        {course.category && <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
                           {course.category}
-                        </span>
-                        <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                        </span>}
+                       {course.level && <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
                           {course.level}
-                        </span>
+                        </span>}
                         <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">
-                          {course.duration}
+                          {parseInt(course.durationInMin/60)+" hrs "+course.durationInMin%60+" min "}
                         </span>
                       </div>
-                      <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition duration-200">
-                        Enroll Now
+                      <div className='flex justify-around items-center w-full'>
+                        {!course.enrolled && <div className='px-1 py-2 flex items-center justify-around gap-2 text-sm text-gray-600 border rounded   w-1/3'>
+                           <button onClick={()=>addCart(course)} className='flex gap-3 items-center cursor-pointer '>{course.inCart?"REMOVE":"ADD TO CART"}<FaShoppingCart size={18}/></button>
+                          
+                         </div>}
+                         <div className={`${course.enrolled ? 'w-full' : 'w-1/3'}`}>  
+                      <button disabled={course.enrolled}  onClick={()=>enrollCourse(course.id)}  className={`w-full ${course.enrolled ? 'bg-gray-400 hover:bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'} text-white py-2 px-2 cursor-pointer rounded-md transition duration-200`}>
+                        {course.enrolled?"Enrolled":"Enroll Now"}
                       </button>
+                         </div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -302,39 +372,12 @@ const CoursesPage = () => {
             )}
 
             {/* Pagination */}
+            <div className='flex justify-center mt-5 '>
+
             {totalPages > 1 && (
-              <div className="mt-8 flex justify-center">
-                <nav className="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}`}
-                  >
-                    <span className="sr-only">Previous</span>
-                    <FiChevronLeft className="h-5 w-5" />
-                  </button>
-                  
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${currentPage === page ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                  
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}`}
-                  >
-                    <span className="sr-only">Next</span>
-                    <FiChevronRight className="h-5 w-5" />
-                  </button>
-                </nav>
-              </div>
+              <Pagination  totalPages={totalPages} currentPage={currentPage} onPageChange={setCurrentPage} />
             )}
+            </div>
           </div>
         </div>
       </div>
@@ -343,7 +386,7 @@ const CoursesPage = () => {
       {mobileFiltersOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-screen">
-            <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setMobileFiltersOpen(false)} />
+            <div className="fixed inset-0 bg-white/30 bg-opacity-25" onClick={() => setMobileFiltersOpen(false)} />
             <div className="relative bg-white w-80 max-w-xs h-full shadow-xl">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -361,9 +404,25 @@ const CoursesPage = () => {
 
                 {/* Mobile Filters Content */}
                 <div className="mb-6">
+                      <h3 className="text-sm font-medium text-gray-900 mb-2">Items per page</h3>
+                      <select
+                        value={coursesPerPage}
+                        onChange={(e) => setCoursesPerPage(parseInt(e.target.value))}
+                        className="w-1/2 border px-9 py-2 rounded"
+                      >
+                        
+                        <option value={4}>4</option>
+                  
+                        <option value={8}>8</option>
+                        <option value={12}>20</option>
+                      </select>
+                    
+              </div>
+
+                <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-900 mb-2">Categories</h3>
                   <div className="space-y-2">
-                    {categories.map((category) => (
+                    {CATEGORIES.map((category) => (
                       <div key={category} className="flex items-center">
                         <input
                           id={`mobile-category-${category}`}
@@ -383,7 +442,7 @@ const CoursesPage = () => {
                 <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-900 mb-2">Levels</h3>
                   <div className="space-y-2">
-                    {levels.map((level) => (
+                    {LEVELS.map((level) => (
                       <div key={level} className="flex items-center">
                         <input
                           id={`mobile-level-${level}`}
