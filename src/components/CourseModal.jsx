@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaTimes } from "react-icons/fa";
+import { CATEGORIES, LEVELS } from "../constants/user.constant";
 
 const CourseModal = ({ isOpen, onClose, onSubmit }) => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
@@ -105,9 +106,11 @@ const CourseModal = ({ isOpen, onClose, onSubmit }) => {
             required
           >
             <option value="">Select Level</option>
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Advance">Advance</option>
+             {LEVELS.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
           </select>
 
           {/* Category Select */}
@@ -118,14 +121,12 @@ const CourseModal = ({ isOpen, onClose, onSubmit }) => {
             className="w-full border p-3 rounded"
             required
           >
-            <option value="">Select Category</option>
-            <option value="IT">IT</option>
-            <option value="Finance">Finance</option>
-            <option value="Business">Business</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Design">Design</option>
-            <option value="Health">Health</option>
-            <option value="Personal Development">Personal Development</option>
+           { <option value="">Select Category</option>}
+            {CATEGORIES.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
           </select>
 
           
